@@ -3,13 +3,23 @@ import pygame as pg
 
 vec = pg.math.Vector2
 
+class Spritesheet:
+    def __init__(self, filename):
+        self.spritesheet = pg.image.load(filename).convert()
+
+    def getImage(self, x, y, width, height):
+        image = pg.Surface((width, height))
+        image.blit(self.spritesheet, (0,0), (x, y, width, height))
+        image = pg.transform.scale(image, (width//2, height//2))
+        return image
+
 
 class Player(pg.sprite.Sprite):
     def __init__(self, game):
         super(Player, self).__init__()
         self.game = game
-        self.image = pg.Surface((30, 40))
-        self.image.fill(YELLOW)
+        self.image = self.game.spritesheet.getImage(614, 1063, 120, 191)
+        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.center = (WIDTH / 2, HEIGHT / 2)
         self.pos = vec(WIDTH / 2, HEIGHT / 2)
@@ -36,7 +46,7 @@ class Player(pg.sprite.Sprite):
         self.pos += self.vel + 0.5 * self.acc
         if self.pos.x >= WIDTH:
             self.pos.x = 0
-        if self.pos.x <= 0:
+        if self.pos.x < 0:
             self.pos.x = WIDTH
         self.rect.midbottom = self.pos
 

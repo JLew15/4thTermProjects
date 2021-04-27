@@ -3,6 +3,7 @@ HEIGHT = 600
 FPS = 60
 FONT_NAME = 'arial'
 HSFILE = "highscore.txt"
+SPRITESHEET = "spritesheet_jumper.png"
 
 PLAYER_ACC = 0.5
 PLAYER_FRICTION = -0.12

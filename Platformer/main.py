@@ -18,11 +18,13 @@ class Game:
 
     def loadData(self):
         self.directory = path.dirname(__file__)
+        imgDirectory = path.join(self.directory, 'img')
         with open(path.join(self.directory, HSFILE), 'w') as f:
             try:
                 self.highscore = int(f.read())
             except:
                 self.highscore = 0
+        self.spritesheet = Spritesheet(path.join(imgDirectory, SPRITESHEET))
 
     def run(self):
         self.playing = True
