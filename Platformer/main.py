@@ -41,7 +41,7 @@ class Game:
         self.player = Player(self)
         self.allSprites.add(self.player)
         for plat in PLATFORM_LIST:
-            p = Platform(*plat)
+            p = Platform(self, *plat)
             self.allSprites.add(p)
             self.platforms.add(p)
         self.run()
@@ -51,12 +51,18 @@ class Game:
         if self.player.vel.y > 0:
             hits = pg.sprite.spritecollide(self.player, self.platforms, False)
             if hits:
-                self.player.pos.y = hits[0].rect.top
-                self.player.vel.y = 0
-        if self.player.rect.top <= HEIGHT /4:
-            self.player.pos.y += abs(self.player.vel.y)
+                lowest = hits[0]
+                for hit in hits:
+                    if hit.rect.bottom > lowest.rect.bottom:
+                        lowest = hit
+                if self.player.pos.y < lowest.rect.centery:
+                    self.player.pos.y = lowest.rect.top
+                    self.player.vel.y = 0
+                    self.player.jumping = False
+        if self.player.rect.top <= HEIGHT / 4:
+            self.player.pos.y += max(abs(self.player.vel.y), 4)
             for plat in self.platforms:
-                plat.rect.y += abs(self.player.vel.y)
+                plat.rect.y += max(abs(self.player.vel.y), 4)
                 if plat.rect.top >= HEIGHT:
                     plat.kill()
                     self.score += 10
@@ -71,7 +77,7 @@ class Game:
 
         while len(self.platforms) < 6:
             width = random.randrange(50, 100)
-            p = Platform(random.randrange(0, WIDTH-width), random.randrange(-75, -30), width, 20)
+            p = Platform(self, random.randrange(0, WIDTH-width), random.randrange(-75, -30))
             self.platforms.add(p)
             self.allSprites.add(p)
 
@@ -84,10 +90,14 @@ class Game:
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
                     self.player.jump()
+            if event.type == pg.KEYUP:
+                if event.key == pg.K_SPACE:
+                    self.player.jumpCut()
 
     def draw(self):
         self.screen.fill(BGCOLOR)
         self.allSprites.draw(g.screen)
+        self.screen.blit(self.player.image, self.player.rect)
         self.drawText(str(self.score), 22, WHITE, WIDTH/2, 15)
         pg.display.flip()
 
