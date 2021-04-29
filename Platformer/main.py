@@ -25,6 +25,9 @@ class Game:
             except:
                 self.highscore = 0
         self.spritesheet = Spritesheet(path.join(imgDirectory, SPRITESHEET))
+        self.audDirectory = path.join(self.directory, 'aud')
+        self.jumpSound = pg.mixer.Sound(path.join(self.audDirectory, 'Jump33.wav'))
+        self.bgMusic = pg.mixer.music.load(path.join(self.audDirectory, 'Happy Tune.ogg'))
 
     def run(self):
         self.playing = True
