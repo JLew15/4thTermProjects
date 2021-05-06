@@ -9,8 +9,23 @@ class Player(pg.sprite.Sprite):
         self.image = pg.Surface((TILESIZE, TILESIZE))
         self.image.fill(YELLOW)
         self.rect = self.image.get_rect()
-        self.x = x
-        self.y = y
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+
+    def getKeys(self):
+        self.vx, self.vy = 0, 0
+        keys = pg.key.get_pressed()
+        if keys[pg.K_LEFT] or keys[pg.K_a]:
+            self.vx = -PLAYER_SPEED
+        if keys[pg.K_RIGHT] or keys[pg.K_d]:
+            self.vx = PLAYER_SPEED
+        if keys[pg.K_UP] or keys[pg.K_w]:
+            self.vy = -PLAYER_SPEED
+        if keys[pg.K_DOWN] or keys[pg.K_s]:
+            self.vy = PLAYER_SPEED
+        if self.vx != 0 and self.vy != 0:
+            self.vx *= 0.7071
+            self.vy *= 0.7071
 
     def move(self, dx = 0, dy = 0):
         if not self.collideWithWalls(dx, dy):
@@ -24,8 +39,10 @@ class Player(pg.sprite.Sprite):
         return False
 
     def update(self):
-        self.rect.x = self.x * TILESIZE
-        self.rect.y = self.y * TILESIZE
+        self.getKeys()
+        self.x += self.vx * self.game.dt
+        self.y += self.vy * self.game.dt
+        self.rect.topleft = (self.x, self.y)
 
 class Wall(pg.sprite.Sprite):
     def __init__(self, game, x, y):
