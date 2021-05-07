@@ -34,6 +34,7 @@ class Game:
         self.imageTiles = pg.sprite.Group()
         self.lastPiece = pg.sprite.Group()
         self.mouse = pg.sprite.Group()
+        self.moveGroup = pg.sprite.Group()
         temporList = []
         self.doggoPieces = slicer.slice("img/doggo.png", 20)
         for i in range(4):
@@ -44,6 +45,22 @@ class Game:
         self.allSprites.remove(temporList[-1])
         self.lastPiece.add(temporList[-1])
         self.pointer = Pointer(self, self.mousePos)
+        self.topWall = Wall()
+        self.imageTiles.add(self.topWall)
+        self.topWall.rect.bottom = 0
+        self.topWall.rect.centerx = WIDTH/2
+        self.rightWall = Wall()
+        self.imageTiles.add(self.rightWall)
+        self.rightWall.rect.left = WIDTH
+        self.rightWall.rect.centery = HEIGHT/2
+        self.leftWall = Wall()
+        self.imageTiles.add(self.leftWall)
+        self.leftWall.rect.right = 0
+        self.leftWall.rect.centery = HEIGHT/2
+        self.bottomWall = Wall()
+        self.imageTiles.add(self.bottomWall)
+        self.bottomWall.rect.top = HEIGHT
+        self.bottomWall.rect.centerx = WIDTH/2
 
 
     def run(self):
@@ -65,6 +82,7 @@ class Game:
         rightClick = pg.mouse.get_pressed(3)
         if hits and rightClick[0]:
             hits[0].move()
+        #     hits[0].move()
         #     hits[0].moveX(IMAGEWIDTH, 0)
         # if hits and rightClick[2]:
         #     hits[0].moveY(0, IMAGEHEIGHT)

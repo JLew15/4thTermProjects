@@ -5,6 +5,7 @@ import random as r
 
 class ImageTile(pg.sprite.Sprite):
     choiceList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
     def __init__(self, game, x, y):
         self.groups = game.allSprites, game.imageTiles
         pg.sprite.Sprite.__init__(self, self.groups)
@@ -19,32 +20,6 @@ class ImageTile(pg.sprite.Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
         self.canMove = None
-
-    def moveX(self, dx=0, dy=0):
-        # MOVE RIGHT
-        if not self.collide_with_wallsX(dx):
-            self.x += dx
-        elif not self.collide_with_wallsX(-dx):
-            self.x += -dx
-        print("CLICKED")
-
-    def moveY(self, dx=0, dy=0):
-        if self.collide_with_wallsY(dy):
-            self.y += -dy
-        elif self.collide_with_wallsY(-dy):
-            self.y += dy
-
-    def collide_with_wallsX(self, dx=0, dy=0):
-        for tile in self.game.imageTiles:
-            if tile.x == self.x + dx and tile.y == self.y + dy:
-                return True
-        return False
-
-    def collide_with_wallsY(self, dy, dx=0):
-        for tile in self.game.imageTiles:
-            if tile.y == self.y + dy and tile.x == self.x + dx:
-                return True
-        return False
 
     def move(self):
         self.findOpen()
@@ -65,17 +40,49 @@ class ImageTile(pg.sprite.Sprite):
         self.rect.y = self.y
 
     def findOpen(self):
-        if self.y + IMAGEHEIGHT != tile.y:
-            self.canMove = "down"
-        elif self.y - IMAGEHEIGHT != tile.y:
-            self.canMove = "up"
-        elif self.x + IMAGEWIDTH != tile.x:
-            self.canMove = "right"
-        elif self.x - IMAGEWIDTH != tile.x:
-            self.canMove = "left"
-        else:
+        self.game.imageTiles.remove(self)
+        self.game.moveGroup.add(self)
+        # MOVE DOWN CHECK
+        self.rect.y += 20
+        hits = pg.sprite.groupcollide(self.game.imageTiles, self.game.moveGroup, False, False)
+        if hits:
+            self.rect.y -= 20
             self.canMove = None
 
+            # MOVE UP CHECK
+            self.rect.y -= 20
+            hits2 = pg.sprite.groupcollide(self.game.imageTiles, self.game.moveGroup, False, False)
+            if hits2:
+                self.rect.y += 20
+                self.canMove = None
+
+                # MOVE RIGHT CHECK
+                self.rect.x += 20
+                hits3 = pg.sprite.groupcollide(self.game.imageTiles, self.game.moveGroup, False, False)
+                if hits3:
+                    self.rect.x -= 20
+                    self.canMove = None
+
+                    # MOVE LEFT CHECK
+                    self.rect.x -= 20
+                    hits4 = pg.sprite.groupcollide(self.game.imageTiles, self.game.moveGroup, False, False)
+                    if hits4:
+                        self.rect.x += 20
+                        self.canMove = None
+                    else:
+                        self.canMove = "left"
+                        self.rect.x += 20
+                else:
+                    self.canMove = "right"
+                    self.rect.x -= 20
+            else:
+                self.canMove = "up"
+                self.rect.y += 20
+        else:
+            self.canMove = "down"
+            self.rect.y -= 20
+        self.game.moveGroup.remove(self)
+        self.game.imageTiles.add(self)
 
 
 class Pointer(pg.sprite.Sprite):
@@ -90,3 +97,10 @@ class Pointer(pg.sprite.Sprite):
 
     def update(self):
         self.rect.center = self.game.mousePos
+
+
+class Wall(pg.sprite.Sprite):
+    def __init__(self):
+        super(Wall, self).__init__()
+        self.image = pg.Surface((WIDTH, HEIGHT))
+        self.rect = self.image.get_rect()
